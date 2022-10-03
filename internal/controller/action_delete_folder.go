@@ -2,34 +2,35 @@ package controller
 
 import (
 	"io/ioutil"
-	pb "main_server/internal/models/pb"
 	"net/http"
 
+	jsoniter "github.com/json-iterator/go"
 	"github.com/labstack/echo/v4"
-	"google.golang.org/protobuf/proto"
 )
 
-func (c *Controller) Create(ctx echo.Context) error {
+func (c *Controller) DeleteFolder(ctx echo.Context) error {
 	bodyBytes, err := ioutil.ReadAll(ctx.Request().Body)
 	if err != nil {
 		return ctx.String(http.StatusInternalServerError, err.Error())
 	}
 
-	b := &pb.BackupCreate{}
-	err = proto.Unmarshal(bodyBytes, b)
+	folder := struct {
+		FolderName string `json:"folder_name" valiadate:"required,gt=0"`
+	}{}
+	err = jsoniter.Unmarshal(bodyBytes, &folder)
 	if err != nil {
 		return ctx.String(http.StatusInternalServerError, err.Error())
 	}
 
-	err = c.validate.Struct(b)
+	err = c.validate.Struct(&folder)
 	if err != nil {
 		return ctx.String(http.StatusBadRequest, err.Error())
 	}
 
-	err = c.srv.CreateArchive(b)
+	err = c.srv.DeleteFolder(folder.FolderName)
 	if err != nil {
 		return ctx.String(http.StatusInternalServerError, err.Error())
 	}
 
-	return ctx.NoContent(http.StatusCreated)
+	return ctx.NoContent(http.StatusNoContent)
 }
