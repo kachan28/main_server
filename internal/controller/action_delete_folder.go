@@ -15,7 +15,7 @@ func (c *Controller) DeleteFolder(ctx echo.Context) error {
 	}
 
 	folder := struct {
-		FolderName string `json:"folder_name" valiadate:"required,gt=0"`
+		FolderName string `json:"id" valiadate:"required,gt=0"`
 	}{}
 	err = jsoniter.Unmarshal(bodyBytes, &folder)
 	if err != nil {
